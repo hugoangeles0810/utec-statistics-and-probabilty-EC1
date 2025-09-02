@@ -1,0 +1,161 @@
+---
+title: "EC1"
+author: "Grupo 7"
+format: html
+editor: visual
+---
+
+## $\epsilon_2$
+Extraemos cinco bolas, al azar, una a la vez y **sin reemplazo**, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color y anotamos el número de bolas azules extraídas.
+
+Modelaremos el experimento, mediante $(\Omega_2, \mathcal{F}_2, \mathbb{P}_2)$ donde:
+
+$$\Omega_2 = \{2, 3, 4\}$$
+
+### Simulación de $\epsilon_2$
+
+Podremos simular el experimento con la siguiente función en R
+
+```{r}
+eE2 <- function() {
+  BOLAS <- c(rep("Azul", 4), rep("Verde", 3))
+  return(sum(sample(BOLAS, 5, replace = FALSE) == "Azul"))
+}
+```
+
+Tomemos una muestra de 10000 observaciones
+```{r}
+X2 <- replicate(10000, eE2())
+```
+Veamos los resultados de $X_2$
+```{r}
+table(X2)
+```
+Las propabilidades empíricas de $\epsilon_2$ con una muestra de 10000 observaciones
+```{r}
+barplot(table(X2)/length(X2),
+        ylim = c(0, 0.6),
+        main = "Probabilidades empíricas en E2",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+```
+
+### Probalidad de teórica en $\epsilon_2$
+
+Para determinar la probabilidad teórica nos vamos a apoyar de expermiento accesorio $\epsilon_a$
+
+:::callout-note
+### $\epsilon_a$
+Extraemos cinco bolas, al azar, todas a la vez, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color y anotamos el número de bolas azules extraídas.
+:::
+
+Dado que ambos experimientos comparten el espacio muestral $\Omega_2 = \{2, 3, 4\} = \Omega_a$ y el orden en el que se sacan las bolas se vuelve irrelevante en $\epsilon_a$ , 
+podemos decir que: 
+
+$$\mathbb{P}_2(\{x\}) = \mathbb{P}_a(\{x\})$$
+
+Donde:
+
+$$
+\mathbb{P}_2(\{x\}) = 
+  \tfrac
+    {
+      (Cantidad\ de\ formas\ de\ sacar\ x\ bolas\ azules\ de\ 4) * 
+      (Cantidad\ de\ formas\ de\ sacar\ sacar\ 5-x\ bolas\ verdes\ de\ 3)
+    }
+    {
+      Cantidad\ de\ formas\ de\ sacar\ 5\ bolas\ de\ una\ bolsa\ con\ 7\ bolas
+    }, 
+    \forall\ x \in \mathbb{Z}, x \colon 2 \leq x \leq 4
+$$
+
+o en términos de combinatorias:
+
+$$
+\mathbb{P}_2(\{x\}) = 
+  \tfrac
+    {
+      \binom{4}{x}*\binom{3}{5-x}
+    }
+    {
+      \binom{7}{5}
+    }
+$$
+
+Ahora implementemos el código en R para calcular la probabilidad teóríca
+```{r}
+.tE2 <- function(x) {
+  bolas <- 5
+  azules <- 4
+  verdes <- 3
+  n <- azules + verdes
+  return (
+    (choose(azules, x)*choose(verdes, bolas - x)) / choose(n, bolas)
+  )
+}
+
+tE2 = Vectorize(.tE2)
+```
+
+Calculemos las probalidades teóricas:
+```{r}
+BP <- barplot(table(X2)/length(X2),
+        ylim = c(0, 0.6),
+        main = "Probabilidades empíricas vs teóricas en E2",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+
+points(BP, tE2(2:4), col = "blue",pch = 20)
+legend("topright", legend = c("valor teórico", "valor empírico"), col = c("blue", "gray"), fill = c(NA, "gray"), pch = c(20, NA), border = c(NA, "black"), bty = "n")
+```
+
+## $\epsilon_3$
+Extraemos bolas al azar **con reemplazo**, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color, hasta obtener la primera bola azul. Contamos y anotamos el número de veces que se tuvo que extraer bolas.
+
+Modelaremos el experimento, mediante $(\Omega_3, \mathcal{F}_3, \mathbb{P}_3)$ donde:
+
+$$\Omega_3 = \{\ \forall x \in \mathbb{N}\ \}$$
+
+### Simulación de $\epsilon_3$
+
+Podremos simular el experimento con la siguiente función en R
+
+```{r}
+eE3 <- function() {
+  BOLAS <- c(rep("Azul", 4), rep("Verde", 3))
+  
+  cont <- 0
+  azules <- 0
+  
+  while (azules <= 0) {
+    azules <- sum(sample(BOLAS, 1, replace = TRUE) == "Azul")
+    cont <- cont + 1 # Vamos realizando el conteo de bolas extraidas
+  }
+  
+  return(cont)
+}
+```
+
+Tomemos una muestra de 10000 observaciones
+```{r}
+X3 <- replicate(10000, eE3())
+```
+
+Veamos los resultados de $X_3$
+```{r}
+table(X3)
+```
+
+Las propabilidades empíricas de $\epsilon_3$ con una muestra de 10000 observaciones
+```{r}
+barplot(table(X3)/length(X3),
+        ylim = c(0, 1.0),
+        main = "Probabilidades empíricas en E3",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+```
+
+### Probalidad de teórica en $\epsilon_3$
