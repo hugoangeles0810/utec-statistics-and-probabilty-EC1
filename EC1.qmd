@@ -6,6 +6,7 @@ editor: visual
 ---
 
 ## $\epsilon_2$
+
 Extraemos cinco bolas, al azar, una a la vez y **sin reemplazo**, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color y anotamos el número de bolas azules extraídas.
 
 Modelaremos el experimento, mediante $(\Omega_2, \mathcal{F}_2, \mathbb{P}_2)$ donde:
@@ -24,14 +25,19 @@ eE2 <- function() {
 ```
 
 Tomemos una muestra de 10000 observaciones
+
 ```{r}
 X2 <- replicate(10000, eE2())
 ```
+
 Veamos los resultados de $X_2$
+
 ```{r}
 table(X2)
 ```
+
 Las propabilidades empíricas de $\epsilon_2$ con una muestra de 10000 observaciones
+
 ```{r}
 barplot(table(X2)/length(X2),
         ylim = c(0, 0.6),
@@ -45,13 +51,13 @@ barplot(table(X2)/length(X2),
 
 Para determinar la probabilidad teórica nos vamos a apoyar de expermiento accesorio $\epsilon_a$
 
-:::callout-note
+::: callout-note
 ### $\epsilon_a$
+
 Extraemos cinco bolas, al azar, todas a la vez, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color y anotamos el número de bolas azules extraídas.
 :::
 
-Dado que ambos experimientos comparten el espacio muestral $\Omega_2 = \{2, 3, 4\} = \Omega_a$ y el orden en el que se sacan las bolas se vuelve irrelevante en $\epsilon_a$ , 
-podemos decir que: 
+Dado que ambos experimientos comparten el espacio muestral $\Omega_2 = \{2, 3, 4\} = \Omega_a$ y el orden en el que se sacan las bolas se vuelve irrelevante en $\epsilon_a$ , podemos decir que:
 
 $$\mathbb{P}_2(\{x\}) = \mathbb{P}_a(\{x\})$$
 
@@ -84,6 +90,7 @@ $$
 $$
 
 Ahora implementemos el código en R para calcular la probabilidad teóríca
+
 ```{r}
 .tE2 <- function(x) {
   bolas <- 5
@@ -99,6 +106,7 @@ tE2 = Vectorize(.tE2)
 ```
 
 Calculemos las probalidades teóricas:
+
 ```{r}
 BP <- barplot(table(X2)/length(X2),
         ylim = c(0, 0.6),
@@ -112,6 +120,7 @@ legend("topright", legend = c("valor teórico", "valor empírico"), col = c("blu
 ```
 
 ## $\epsilon_3$
+
 Extraemos bolas al azar **con reemplazo**, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color, hasta obtener la primera bola azul. Contamos y anotamos el número de veces que se tuvo que extraer bolas.
 
 Modelaremos el experimento, mediante $(\Omega_3, \mathcal{F}_3, \mathbb{P}_3)$ donde:
@@ -139,16 +148,19 @@ eE3 <- function() {
 ```
 
 Tomemos una muestra de 10000 observaciones
+
 ```{r}
 X3 <- replicate(10000, eE3())
 ```
 
 Veamos los resultados de $X_3$
+
 ```{r}
 table(X3)
 ```
 
 Las propabilidades empíricas de $\epsilon_3$ con una muestra de 10000 observaciones
+
 ```{r}
 barplot(table(X3)/length(X3),
         ylim = c(0, 1.0),
@@ -159,3 +171,5 @@ barplot(table(X3)/length(X3),
 ```
 
 ### Probalidad de teórica en $\epsilon_3$
+
+$$\mathbb{P}_3(\{x\}) = \mathbb{P}_3(\{Verde\})^{x-1}*\mathbb{P}_3(\{Azul\})$$
