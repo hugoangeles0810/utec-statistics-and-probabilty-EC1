@@ -163,7 +163,7 @@ Las propabilidades empíricas de $\epsilon_3$ con una muestra de 10000 observaci
 
 ```{r}
 barplot(table(X3)/length(X3),
-        ylim = c(0, 1.0),
+        ylim = c(0, 0.6),
         main = "Probabilidades empíricas en E3",
         xlab = "valor anotado",
         ylab = "probabilidad"
@@ -174,7 +174,7 @@ barplot(table(X3)/length(X3),
 
 Para calcular $\mathbb{P}_3(\{x\}) = probabilidad\ de\ sacar\ una\ bola\ azul\ en\ el\ intento\ x$ debemos tener en cuenta que en los intento de $1\ a\ x-1$ salió una bola verde
 
-$$\mathbb{P}_3(\{x\}) = \mathbb{P}_3(\{Verde\})^{x-1}*\mathbb{P}_3(\{Azul\})$$
+$$\mathbb{P}_3(\{x\}) = \mathbb{P}_0(\{Verde\})^{x-1}*\mathbb{P}_0(\{Azul\})$$
 
 Ahora implementemos el código en R para calcular la probabilidad teóríca
 ```{r}
@@ -210,3 +210,91 @@ Extraemos bolas al azar **sin reemplazo**, de una bolsa con 4 bolas azules y 3 b
 Modelaremos el experimento, mediante $(\Omega_4, \mathcal{F}_4, \mathbb{P}_4)$ donde:
 
 $$\Omega_4 = \{1,2,3,4\}$$
+
+### Simulación de $\epsilon_4$
+
+Podremos simular el experimento con la siguiente función en R
+
+```{r}
+eE4 <- function() {
+  BOLAS <- c(rep("Azul", 4), rep("Verde", 3))
+  
+  cont <- 0
+  azules <- 0
+  
+  while (azules <= 0) {
+    bola <- sample(BOLAS, 1, replace = FALSE)
+    
+    if (bola == "Azul") {
+      azules <- azules + 1 
+    }
+    
+    BOLAS <- BOLAS[BOLAS != bola | duplicated(BOLAS != bola)] # Vamos retirando de la bolsa la bola extraída
+    cont <- cont + 1 # Vamos realizando el conteo de bolas extraidas
+  }
+  
+  return(cont)
+}
+```
+
+Tomemos una muestra de 10000 observaciones
+
+```{r}
+X4 <- replicate(10000, eE4())
+```
+
+Veamos los resultados de $X_4$
+
+```{r}
+table(X4)
+```
+
+Las propabilidades empíricas de $\epsilon_4$ con una muestra de 10000 observaciones
+
+```{r}
+barplot(table(X4)/length(X4),
+        ylim = c(0, 0.6),
+        main = "Probabilidades empíricas en E4",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+```
+
+### Probalidad de teórica en $\epsilon_4$
+
+Como el experimento es **sin reemplazo** por cada bola extraída se va modificando la cantidad de bolas y por consiguiente la probabilidad de sacar una bola azul (y verde).
+
+Para:
+$$\mathbb{P}_4(\{1\}) = \tfrac{4}{7}$$ 
+Ahora para $\mathbb{P}_4(\{2\})$ sabemos que la primera tuvo que salir verde:
+$$\mathbb{P}_4(\{2\}) = \tfrac{3}{7} * \tfrac{4}{6}$$ 
+Podemos aplicar la misma lógica para $\mathbb{P}_4(\{3\})$ y $\mathbb{P}_4(\{4\})$:
+$$\mathbb{P}_4(\{3\}) = \tfrac{3}{7} * \tfrac{2}{6} * \tfrac{4}{5}$$
+
+$$\mathbb{P}_4(\{4\}) = \tfrac{3}{7} * \tfrac{2}{6} * \tfrac{1}{5} * \tfrac{4}{4}$$
+
+Generalizando:
+
+$$\mathbb{P}_4(\{x\}) = \tfrac{P_{3,x-1}}{P_{7,x-1}} * \tfrac{4}{7-(x-1)}, \forall\ x \in \mathbb{Z}, x \colon 2 \leq x \leq 4$$ 
+
+Ahora implementemos el código en R para calcular la probabilidad teóríca
+```{r}
+.tE4 <- function(x) {
+  return((factorial(3)/factorial(3-(x-1))/(factorial(7)/factorial(7 - (x-1)))) * 4/(7 - (x-1)))
+}
+
+tE4 = Vectorize(.tE4)
+```
+
+Calculemos las probalidades teóricas:
+```{r}
+BP <- barplot(table(X4)/length(X4),
+        ylim = c(0, 0.6),
+        main = "Probabilidades empíricas vs teóricas en E4",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+
+points(BP, tE4(1:length(table(X4))), col = "blue",pch = 20)
+legend("topright", legend = c("valor teórico", "valor empírico"), col = c("blue", "gray"), fill = c(NA, "gray"), pch = c(20, NA), border = c(NA, "black"), bty = "n")
+```
