@@ -156,7 +156,7 @@ window.Quarto = {
 <div class="cell-output cell-output-stdout">
 <pre><code>X2
    2    3    4 
-2859 5766 1375 </code></pre>
+2900 5713 1387 </code></pre>
 </div>
 </div>
 <p>Las propabilidades empíricas de <span class="math inline">\(\epsilon_2\)</span> con una muestra de 10000 observaciones</p>
@@ -285,8 +285,8 @@ window.Quarto = {
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(X3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>X3
-   1    2    3    4    5    6    7    8    9   10   12 
-5625 2525 1031  482  188   76   42   17    9    4    1 </code></pre>
+   1    2    3    4    5    6    7    8    9   10   11   13 
+5689 2459 1085  445  179   77   39   14    8    2    2    1 </code></pre>
 </div>
 </div>
 <p>Las propabilidades empíricas de <span class="math inline">\(\epsilon_3\)</span> con una muestra de 10000 observaciones</p>
@@ -308,7 +308,47 @@ window.Quarto = {
 </section>
 <section id="probalidad-de-teórica-en-epsilon_3" class="level3">
 <h3 class="anchored" data-anchor-id="probalidad-de-teórica-en-epsilon_3">Probalidad de teórica en <span class="math inline">\(\epsilon_3\)</span></h3>
+<p>Para calcular <span class="math inline">\(\mathbb{P}_3(\{x\}) = probabilidad\ de\ sacar\ una\ bola\ azul\ en\ el\ intento\ x\)</span> debemos tener en cuenta que en los intento de <span class="math inline">\(1\ a\ x-1\)</span> salió una bola verde</p>
+<p><span class="math display">\[\mathbb{P}_3(\{x\}) = \mathbb{P}_3(\{Verde\})^{x-1}*\mathbb{P}_3(\{Azul\})\]</span></p>
+<p>Ahora implementemos el código en R para calcular la probabilidad teóríca</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>.tE3 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  azules <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  verdes <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> azules <span class="sc">+</span> verdes</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    ((verdes<span class="sc">/</span>n)<span class="sc">^</span>(x<span class="dv">-1</span>))<span class="sc">*</span>(azules<span class="sc">/</span>n)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>tE3 <span class="ot">=</span> <span class="fu">Vectorize</span>(.tE3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Calculemos las probalidades teóricas:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>BP <span class="ot">&lt;-</span> <span class="fu">barplot</span>(<span class="fu">table</span>(X3)<span class="sc">/</span><span class="fu">length</span>(X3),</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.6</span>),</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Probabilidades empíricas vs teóricas en E3"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"valor anotado"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"probabilidad"</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(BP, <span class="fu">tE3</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(<span class="fu">table</span>(X3))), <span class="at">col =</span> <span class="st">"blue"</span>,<span class="at">pch =</span> <span class="dv">20</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"valor teórico"</span>, <span class="st">"valor empírico"</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"gray"</span>), <span class="at">fill =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">"gray"</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="cn">NA</span>), <span class="at">border =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">"black"</span>), <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="EC1_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
+</section>
+<section id="epsilon_4" class="level2">
+<h2 class="anchored" data-anchor-id="epsilon_4"><span class="math inline">\(\epsilon_4\)</span></h2>
+<p>Extraemos bolas al azar <strong>sin reemplazo</strong>, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color, hasta obtener la primera bola azul. Contamos y anotamos el número de veces que se tuvo que extraer bolas.</p>
+<p>Modelaremos el experimento, mediante <span class="math inline">\((\Omega_4, \mathcal{F}_4, \mathbb{P}_4)\)</span> donde:</p>
+<p><span class="math display">\[\Omega_4 = \{1,2,3,4\}\]</span></p>
 </section>
 
 </main>

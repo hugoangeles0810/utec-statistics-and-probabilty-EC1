@@ -172,4 +172,41 @@ barplot(table(X3)/length(X3),
 
 ### Probalidad de teórica en $\epsilon_3$
 
+Para calcular $\mathbb{P}_3(\{x\}) = probabilidad\ de\ sacar\ una\ bola\ azul\ en\ el\ intento\ x$ debemos tener en cuenta que en los intento de $1\ a\ x-1$ salió una bola verde
+
 $$\mathbb{P}_3(\{x\}) = \mathbb{P}_3(\{Verde\})^{x-1}*\mathbb{P}_3(\{Azul\})$$
+
+Ahora implementemos el código en R para calcular la probabilidad teóríca
+```{r}
+.tE3 <- function(x) {
+  azules <- 4
+  verdes <- 3
+  n <- azules + verdes
+  return (
+    ((verdes/n)^(x-1))*(azules/n)
+  )
+}
+
+tE3 = Vectorize(.tE3)
+```
+
+Calculemos las probalidades teóricas:
+```{r}
+BP <- barplot(table(X3)/length(X3),
+        ylim = c(0, 0.6),
+        main = "Probabilidades empíricas vs teóricas en E3",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+
+points(BP, tE3(1:length(table(X3))), col = "blue",pch = 20)
+legend("topright", legend = c("valor teórico", "valor empírico"), col = c("blue", "gray"), fill = c(NA, "gray"), pch = c(20, NA), border = c(NA, "black"), bty = "n")
+```
+
+## $\epsilon_4$
+
+Extraemos bolas al azar **sin reemplazo**, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color, hasta obtener la primera bola azul. Contamos y anotamos el número de veces que se tuvo que extraer bolas.
+
+Modelaremos el experimento, mediante $(\Omega_4, \mathcal{F}_4, \mathbb{P}_4)$ donde:
+
+$$\Omega_4 = \{1,2,3,4\}$$
