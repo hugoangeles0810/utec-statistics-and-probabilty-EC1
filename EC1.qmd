@@ -47,7 +47,7 @@ barplot(table(X2)/length(X2),
       )
 ```
 
-### Probalidad de teórica en $\epsilon_2$
+### Probalidad teórica en $\epsilon_2$
 
 Para determinar la probabilidad teórica nos vamos a apoyar de expermiento accesorio $\epsilon_a$
 
@@ -170,7 +170,19 @@ barplot(table(X3)/length(X3),
       )
 ```
 
-### Probalidad de teórica en $\epsilon_3$
+### Probalidad teórica en $\epsilon_3$
+
+Para determinar la probabilidad teórica nos vamos a apoyar de expermiento accesorio $\epsilon_0$
+
+::: callout-note
+### $\epsilon_0$
+
+Extraemos una bola al azar, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color y anotamos el color que sale. Donde:
+
+$$\Omega_0 = \{Azul, Verde\}$$
+$$\mathbb{P}_0(\{Azul\}) = \tfrac{4}{7}$$
+$$\mathbb{P}_0(\{Verde\}) = \tfrac{3}{7}$$
+:::
 
 Para calcular $\mathbb{P}_3(\{x\}) = probabilidad\ de\ sacar\ una\ bola\ azul\ en\ el\ intento\ x$ debemos tener en cuenta que en los intento de $1\ a\ x-1$ salió una bola verde
 
@@ -260,7 +272,7 @@ barplot(table(X4)/length(X4),
       )
 ```
 
-### Probalidad de teórica en $\epsilon_4$
+### Probalidad teórica en $\epsilon_4$
 
 Como el experimento es **sin reemplazo** por cada bola extraída se va modificando la cantidad de bolas y por consiguiente la probabilidad de sacar una bola azul (y verde).
 
@@ -296,5 +308,209 @@ BP <- barplot(table(X4)/length(X4),
       )
 
 points(BP, tE4(1:length(table(X4))), col = "blue",pch = 20)
+legend("topright", legend = c("valor teórico", "valor empírico"), col = c("blue", "gray"), fill = c(NA, "gray"), pch = c(20, NA), border = c(NA, "black"), bty = "n")
+```
+
+
+## $\epsilon_5$
+Extraemos bolas al azar **con reemplazo**, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color, hasta obtener la tercera bola azul. Contamos y anotamos el número de veces que se tuvo que extraer bolas.
+
+Modelaremos el experimento, mediante $(\Omega_5, \mathcal{F}_5, \mathbb{P}_5)$ donde:
+
+$$\Omega_5 = \{\ \forall x \in \mathbb{N}\ x \colon x\ge3 \}$$
+
+### Simulación de $\epsilon_5$
+
+Podremos simular el experimento con la siguiente función en R
+```{r}
+eE5 <- function() {
+  BOLAS <- c(rep("Azul", 4), rep("Verde", 3))
+  
+  cont <- 0
+  azules <- 0
+  
+  while (azules < 3) {
+    azules <- azules + sum(sample(BOLAS, 1, replace = TRUE) == "Azul")
+    cont <- cont + 1 # Vamos realizando el conteo de bolas extraidas
+  }
+  
+  return(cont)
+}
+```
+
+Tomemos una muestra de 10000 observaciones
+
+```{r}
+X5 <- replicate(10000, eE5())
+```
+
+Veamos los resultados de $X_5$
+
+```{r}
+table(X5)
+```
+```{r}
+table(X5)/length(X5)
+```
+
+Las propabilidades empíricas de $\epsilon_5$ con una muestra de 10000 observaciones
+
+```{r}
+barplot(table(X5)/length(X5),
+        ylim = c(0, 0.27),
+        main = "Probabilidades empíricas en E5",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+```
+
+### Probalidad teórica en $\epsilon_5$
+
+Para determinar la probabilidad teórica en $\epsilon_6$ necesitamos que:
+
+$\epsilon_b$: La extracción número $x$ sea una bola azul.
+
+$\epsilon_c$: En las $x-1$ extracciones anteriores, deben haber salido exactamente 2 bolas azules.
+
+$\epsilon_b$ y $\epsilon_c$ necesitan ocurrir simultaneamente en nuestro experimento, por lo que:
+
+  $$\mathbb{P}(\epsilon_5) = \mathbb{P}(\epsilon_b\ \cap\ \epsilon_c)$$
+Dado que $\epsilon_b$ y $\epsilon_c$ son eventos independientes:
+$$\mathbb{P}(\epsilon_5) = \mathbb{P}(\epsilon_b) * \mathbb{P}(\epsilon_c)$$
+
+Para $\epsilon_b$ sabemos que:
+$$\mathbb{P}_b(\{x\}) = \mathbb{P}(\{Azul\}) = \tfrac{4}{7}$$
+Ya que al ser al ser un expermimento con reemplazo, el experimento no se ve afectado por la cantidad de intentos.
+
+En $\epsilon_c$ podemos determinar la probalidad como:
+
+$$ \mathbb{P}_c({x}) = (cantidad\ de\ maneras\ de\ obtener\ 2\ bolas\ de\ x-1) * \mathbb{P}(\{Azul\})^{2} * \mathbb{P}(\{Verde\})^{x-3}  $$
+En terminos de combinatoria:
+$$ \mathbb{P}_c({x}) = \binom{x-1}{2} * \mathbb{P}(\{Azul\})^{2} * \mathbb{P}(\{Verde\})^{x-3} $$
+Si reemplazamos podemos determinar que:
+
+$$
+\begin{align*}
+\mathbb{P}(\epsilon_5) &= \mathbb{P}(\epsilon_b) * \mathbb{P}(\epsilon_c)\\ 
+  &= \mathbb{P}(\{Azul\} * \binom{x-1}{2} * \mathbb{P}(\{Azul\})^{2} * \mathbb{P}(\{Verde\})^{x-3} \\
+  &= \binom{x-1}{2} * \mathbb{P}(\{Azul\})^{3} * \mathbb{P}(\{Verde\})^{x-3}
+\end{align*}
+$$
+
+Ahora implementemos el código en R para calcular la probabilidad teóríca
+```{r}
+.tE5 <- function(x) {
+  return(
+    choose(x-1, 2) * ((4/7)^3) * (3/7)^(x-3)
+  )
+}
+
+tE5 = Vectorize(.tE5)
+```
+
+Calculemos las probalidades teóricas:
+```{r}
+levesX5 = 3:18
+BP <- barplot(table(factor(X5, levels = levesX5, ordered = TRUE))/length(X5),
+        ylim = c(0, 0.26),
+        main = "Probabilidades empíricas vs teóricas en E5",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+
+points(BP, tE5(levesX5), col = "blue",pch = 20)
+legend("topright", legend = c("valor teórico", "valor empírico"), col = c("blue", "gray"), fill = c(NA, "gray"), pch = c(20, NA), border = c(NA, "black"), bty = "n")
+```
+
+## $\epsilon_6$
+Extraemos bolas al azar **sin reemplazo**, de una bolsa con 4 bolas azules y 3 bolas verdes indistinguibles salvo por su color, hasta obtener la tercera bola azul. Contamos y anotamos el número de veces que se tuvo que extraer bolas.
+
+Modelaremos el experimento, mediante $(\Omega_6, \mathcal{F}_6, \mathbb{P}_6)$ donde:
+
+$$\Omega_6 = \{3,4,5,6\}$$
+
+
+
+### Simulación de $\epsilon_6$
+
+Podremos simular el experimento con la siguiente función en R
+```{r}
+eE6 <- function() {
+  BOLAS <- c(rep("Azul", 4), rep("Verde", 3))
+  
+  cont <- 0
+  azules <- 0
+  
+  while (azules < 3) {
+    bola <- sample(BOLAS, 1, replace = FALSE)
+    
+    if (bola == "Azul") {
+      azules <- azules + 1 
+    }
+    
+    BOLAS <- BOLAS[BOLAS != bola | duplicated(BOLAS != bola)] # Vamos retirando de la bolsa la bola extraída
+    cont <- cont + 1 # Vamos realizando el conteo de bolas extraidas
+  }
+  
+  return(cont)
+}
+```
+
+Tomemos una muestra de 10000 observaciones
+
+```{r}
+X6 <- replicate(10000, eE6())
+```
+
+Veamos los resultados de $X_6$
+
+```{r}
+table(X6)
+```
+
+Las propabilidades empíricas de $\epsilon_6$ con una muestra de 10000 observaciones
+
+```{r}
+barplot(table(X6)/length(X6),
+        ylim = c(0, 0.4),
+        main = "Probabilidades empíricas en E6",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+```
+
+### Probalidad teórica en $\epsilon_6$
+Como el experimento es **sin reemplazo** por cada bola extraída se va modificando la cantidad de bolas y por consiguiente la probabilidad de sacar una bola azul (y verde).
+
+Si analizamos el experimento, necesitamos que:
+
+$A$: Que en los intentos $x-1$ intentos deben haber salidos exactamente 2 bolas azules
+
+$B$: Que la bola en el intento $x$ sea azul.
+
+Tanto $A$ y $B$ deber ocurrir simultaneamente. Por lo que  $\mathbb{P}_6(\{x\}) = \mathbb{P}(A)*\mathbb{P}(B)$ ya que son eventos independientes.
+
+$$ \mathbb{P}_6(\{x\}) = \tfrac{\binom{4}{2}*\binom{3}{x-3}}{\binom{7}{x-1}}*\tfrac{2}{7-(x-1)} $$
+Ahora implementemos el código en R para calcular la probabilidad teóríca
+```{r}
+.tE6 <- function(x) {
+  return(
+    ((choose(4, 2)*choose(3, x-3))/choose(7, x-1)) * (2/(7-x+1))
+  )
+}
+
+tE6 = Vectorize(.tE6)
+```
+
+Calculemos las probalidades teóricas:
+```{r}
+BP <- barplot(table(X6)/length(X6),
+        ylim = c(0, 0.4),
+        main = "Probabilidades empíricas vs teóricas en E6",
+        xlab = "valor anotado",
+        ylab = "probabilidad"
+      )
+
+points(BP, tE6(3:6), col = "blue",pch = 20)
 legend("topright", legend = c("valor teórico", "valor empírico"), col = c("blue", "gray"), fill = c(NA, "gray"), pch = c(20, NA), border = c(NA, "black"), bty = "n")
 ```
